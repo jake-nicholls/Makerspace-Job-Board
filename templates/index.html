@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MakerSpace Job Board</title>
+    <link rel="stylesheet" href="{{ url_for('static',filename='style.css')}}">
+    <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.02.min.css">
+</head>
+<body>
+    <h1 class="title">MakerSpace Job Board</h1>
+    <div style="text-align: center; margin-bottom: 20px">
+    {% if session['username'] == "admin" %}
+      <button id="myBtn">Add Job</button>
+      <div id="myModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <br>
+          <h2>Add Job</h2>
+          <div class='formInputContainer'>
+            <form action="{{ url_for('additem') }}" method="POST">
+            <p>Title</p>
+            <input class='formInput' required name="title">
+            <p>Description</p>
+            <textarea class='formInput' style='resize: none;' required name='description'></textarea>
+            <p>Number of People Needed</p>
+            <input class='formInput' required type="number" name="people_required" min="0" max="50">
+            <script>
+              const autoCompleteJS = new autoComplete({ 
+                placeHolder: "",
+                data: {
+                    src: ['test']
+                },
+                resultItem: {
+                    highlight: "highlighted",
+                },
+                events: {
+                    input: {
+                        selection: (event) => {
+                            const selection = event.detail.selection.value;
+                            autoCompleteJS.input.value = selection;
+                        }
+                    }
+                }
+              }); 
+            </script>
+            <p>Teacher Involved</p>
+            <input class='formInput' id='autoComplete' required name='creator_id'>
+            <p>Date Required By</p>
+            <input class='formInput' type="date" required id='datePickerId' name='date_required' pattern="\d{2}/\d{2}/\d{4}">
+            <script>document.getElementById('datePickerId').min = new Date().toISOString().split("T")[0];</script>
+            <p>Status</p>
+            <select class='formInput' required name='status'>
+              <option value='open'>Open</option>
+              <option value='pending'>Pending</option>
+              <option value='complete'>Complete</option>
+            </select>
+            <input type='submit' class='formSubmit' value='Add Item'>
+              </form>
+          </div>
+        </div>
+      </div>
+      <script>
+        var modal = document.getElementById("myModal");
+        var btn = document.getElementById("myBtn");
+        var span = document.getElementsByClassName("close")[0];
+        btn.onclick = function() {
+          modal.style.display = "block";
+        }
+        span.onclick = function() {
+          modal.style.display = "none";
+        }
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+          }
+        } 
+      </script>
+      <button onclick="window.location = '{{ url_for('logout')}}'">List of Users</button>
+      <span> | </span>
+    {% endif %}
+      <button onclick="window.location = '{{ url_for('logout')}}'">Logout</button>
+    </div>
+    <div class="itemListContainer">
+      {% for row in rows %}
+        <div class="itemContainer">
+            <div class="itemSplitLeft">
+                <h3 class="itemHeader">{{row['title']}}</h3>
+                {% if row['status'] == "complete"%}
+                <p class="itemStatus complete">complete</p>
+                {% elif row['status'] == "pending"%}
+                <p class="itemStatus pending">in progress</p>
+                {% else %}
+                <p class="itemStatus open">open</p>
+                {% endif %}
+                <p class="itemBody">{{row['description']}}</p>
+                <div class="itemCreatedByContainer">
+                    <img draggable='false' class="itemCreatedByImage" src="https://asset-cdn.schoology.com/system/files/imagecache/profile_tiny/pictures/picture-a56a7f42859a440b7c8f55bfe87a6e40_5e2a0cad51b56.png">
+                    <p class="itemCreatedByName">Ms Hogan</p>
+                    <span class="separator"> | </span>
+                    <p class="itemCreatedByName"><span id='numberOfPeopleInvolved'>{{row['people_required']}}</span> people</p>
+                  <span class="separator"> | </span>
+                  <p class="itemCreatedByName"><span id='dateRequiredBy'>{{row['date_required']}}</span></p>
+                </div>
+                <p class="itemPostDate">{{row['date_created']}}</p>
+            </div>
+            <div class="itemSplitRight">
+                <p class="itemBagsTitle">Job Bagged By:</p>
+                <ul class="itemBagsList">
+                  {% if row['bagged_by']|length == 0 %}
+                  <p>No one!</p>
+                  {% endif %}
+                  {% for i in row['bagged_by'] %}
+                    <li class="itemBagsListItem">
+                        <img draggable='false' class='itemBagsListItemImage' src='https://asset-cdn.schoology.com/system/files/imagecache/profile_tiny/pictures/picture-af0e898f2cd29873783c73805a9a77e5_60d3facef2e69.jpg'>
+                        <p class='itemBagsListItemName'>Jake Nicholls</p>
+                    </li>
+                  {% endfor %}
+                <button class="itemBagsButton">Bags!</button>
+                    {% if session['username'] == "admin" %}
+      <button>Edit Job</button>
+      <button>Delete Job</button>
+      {% endif %}
+            </div>
+        </div>
+      {% endfor %}
+    </div>
+    <p class="footer">Designed and developed by <a href='mailto:jnicholls24@student.sacs.nsw.edu.au'>Jake Nicholls</a> and <a href='mailto:lpratt24@student.sacs.nsw.edu.au'>Lachlan Pratt</a>.</p>
+</body>
+</html>

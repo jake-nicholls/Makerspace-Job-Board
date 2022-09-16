@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MakerSpace Job Board</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/autoComplete.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tarekraafat/autocomplete.js@10.2.7/dist/css/autoComplete.02.min.css">
+<link rel="stylesheet" href="{{ url_for('static',filename='style.css')}}"
+</head>
+<body>
+  <h1 class="title">MakerSpace Job Board</h1>
+  <div style='margin: auto; max-width: 384px'>
+    <form action="{{ url_for('login') }}" method="POST">
+      <div>
+        <input name='name' id="autoComplete" autocomplete='off'>
+      </div>
+      <input name='studentNo' id="studentNumber" class='passwordContainer' placeholder='Enter your student number...' type='password'>
+      {% if error %}
+      <p class='error'>{{error}}</p>
+      {% endif %}
+      <input type='submit' value='Login' class='loginButton'>
+    </form>
+  </div>
+  <script>
+    const autoCompleteJS = new autoComplete({ 
+      placeHolder: "Enter your name...",
+      data: {
+          src: {{ names | safe }},
+      },
+      resultItem: {
+          highlight: "highlighted",
+      },
+      events: {
+          input: {
+              selection: (event) => {
+                  const selection = event.detail.selection.value;
+                  autoCompleteJS.input.value = selection;
+              }
+          }
+      },
+      resultsList: {
+        element: (list, data) => {
+            if (!data.results.length) {
+                const message = document.createElement("div");
+                message.setAttribute("class", "no_result");
+                message.innerHTML = `<span >No results. Are you in the MakerSpace Schoology Course?</span>`;
+                list.appendChild(message);
+            }
+        },
+        noResults: true,
+        tabSelect: true
+      }
+    });
+  </script>
+</body>
+</html>
