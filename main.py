@@ -27,8 +27,6 @@ names = []
 for i in users:
     names.append(i['name_display'])
 
-names.append("admin")
-
 
 @app.route("/")
 def index():
